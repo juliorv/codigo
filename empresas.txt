@@ -1,0 +1,94 @@
+        public void GrabaEmpresasUsuario(string strModo, string strCodigoEmpresa, string strUsuario, string strUsuarioAsignacion)
+        {
+            AccesoDatos objAccesoDatos = new AccesoDatos();
+            try
+            {
+                SqlParameter[] parms = new SqlParameter[4];
+                parms[0] = new SqlParameter("@i_TIPO_ACCION", SqlDbType.Char, 1);
+                parms[0].Value = strModo;
+                parms[1] = new SqlParameter("@i_CODIGO_EMPRESA", SqlDbType.Int);
+                parms[1].Value = strCodigoEmpresa;
+                parms[2] = new SqlParameter("@i_CODIGO_USUARIO", SqlDbType.VarChar, 8);
+                parms[2].Value = strUsuario;
+                parms[3] = new SqlParameter("@i_USUARIO_ASIGNACION", SqlDbType.VarChar, 8);
+                parms[3].Value = strUsuarioAsignacion;
+                objAccesoDatos.ExecuteDataset(Fuentes.PRYCG, CommandType.StoredProcedure, "PRO_VR_ACTUALIZACION_EMPRESA_USUARIO", parms); 
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                if (objAccesoDatos != null)
+                    objAccesoDatos = null;
+            }
+        }
+-----------------------
+
+        /// <summary>
+        /// método de la capa de lógica que se encarga de 
+        /// grabar las empresas por usuario
+        /// </summary>
+        /// <param name="strModo">modo</param>
+        /// <param name="strCodigoFamilia">codigo de la empresa</param>
+        /// <param name="strUsuario">codigo usuario</param>
+        /// <param name="strUsuarioAsignacion">usuario asignado</param>
+        public void GrabaEmpresaUsuario(string strModo, string strCodigoEmpresa, string strUsuario, string strUsuarioAsignacion)
+        {
+            try
+            {
+                VR_EmpresasDC objEmpresasDC = new VR_EmpresasDC();
+                objEmpresasDC.GrabaEmpresasUsuario(strModo, strCodigoEmpresa, strUsuario, strUsuarioAsignacion);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+---------------------------------
+    protected void wbtGrabar_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            if (txtNombre.Text.Length == 0)
+            {
+                MessageBox("Ingrese el nombre", txtNombre);
+                return;
+            }
+            if (txtCodigo.Text.Length == 0)
+            {
+                MessageBox("Ingrese el código", txtCodigo);
+                return;
+            }
+            string strModo = "";
+            if (blnNuevo)
+            {
+                strModo = "I";
+            }
+            else
+            {
+                strModo = "M";
+            }
+            if (blnNuevo)
+            {
+                for (int i = 0; i < dttEmpresa.Rows.Count; i++)
+                {
+                    if (txtCodigo.Text == dttEmpresa.Rows[i][0].ToString())
+                    {
+                        MessageBox("Ya existe un otro registro con este código", txtNombre);
+                        return;
+                    }
+                }
+            }
+            VR_EmpresasBC objDatos = new VR_EmpresasBC();
+            objDatos.GrabaEmpresa(strModo, Convert.ToInt32(txtCodigo.Text), txtNombre.Text.ToUpper());
+            MessageBox("El Registro se grabó exitosamente");
+            ConsultaEmpresas();
+            limpiarDatos();
+        }
+        catch (System.Exception ex)
+        {
+            MessageError(ex.Message);
+        }
+    }
